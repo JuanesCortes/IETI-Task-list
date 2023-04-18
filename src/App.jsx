@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+import './App.css';
 
 function addTask() {
-  const taskName = document.getElementById("task_name").value.trim();
+  const taskName = document.getElementById('task_name').value.trim();
   if (taskName) {
-    const taskMenu = document.getElementById("task_menu");
-    const newTask = document.createElement("div");
+    const taskMenu = document.getElementById('task_menu');
+    const newTask = document.createElement('div');
     newTask.innerHTML = `
       <div>
         <input type="checkbox"></input>
@@ -16,55 +16,61 @@ function addTask() {
       </div>
     `;
     taskMenu.appendChild(newTask);
-    document.getElementById("task_name").value = "";
+    document.getElementById('task_name').value = '';
   }
 }
 
 function removeTask(button) {
-  const taskDiv = button.closest("div");
+  const taskDiv = button.closest('div');
   taskDiv.remove();
 }
 
 function App() {
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    setTasks(storedTasks);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
   return (
     <div className="App">
       <div>
-        <a href="https://vitejs.dev" target="_blank">
+        <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
-        <a href="https://reactjs.org" target="_blank">
+        <a href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
       <h1>Task List</h1>
-      <input type="text" id="task_name" placeholder='Add your new todo'></input>
+      <input type="text" id="task_name" placeholder="Add your new todo"></input>
       <form>
         <label htmlFor="Tasks"></label>
         <div id="task_menu">
-          <div>
-            <input type="checkbox"></input>
-            <label>Buy a new gaming laptop</label>
-            <button class="button" onClick="removeTask(this)"> <i>-</i></button>
-          </div>
-          <div>
-            <input type="checkbox"></input>
-            <label>Complete a previous task</label>
-            <button class="button" onClick="removeTask(this)"> <i>-</i></button>
-          </div>
-          <div>
-            <input type="checkbox"></input>
-            <label>Create video for Youtube</label>
-            <button class="button" onClick="removeTask(this)"> <i>-</i></button>
-          </div>
-          <div>
-            <input type="checkbox"></input>
-            <label>Create a new portfolio site</label>
-            <button class="button" onClick="removeTask(this)"> <i>-</i></button>
-          </div>
+          {tasks.map((task, index) => (
+            <div key={index}>
+              <input type="checkbox"></input>
+              <label>{task}</label>
+              <button className="button" onClick={() => setTasks(tasks.filter((_, i) => i !== index))}>
+                <i>-</i>
+              </button>
+            </div>
+          ))}
         </div>
       </form>
       <div className="card">
-        <button onClick={addTask}>
+        <button onClick={() => {
+          const taskName = document.getElementById('task_name').value.trim();
+          if (taskName) {
+            setTasks([...tasks, taskName]);
+            document.getElementById('task_name').value = '';
+          }
+        }}>
           Add new task
         </button>
         <p>
@@ -75,7 +81,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
